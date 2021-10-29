@@ -6,7 +6,21 @@
 
 #IncludeRegexTransform: 
 
-C:/Users/Honor/CLionProjects/untitled1/main.cpp
+C:/Users/Honor/Desktop/lab-works/main.cpp
 iostream
+-
+vector
+-
+tuple
+-
+windows.h
+-
+iomanip
+-
+regex
+-
+algorithm
+-
+string
 -
 

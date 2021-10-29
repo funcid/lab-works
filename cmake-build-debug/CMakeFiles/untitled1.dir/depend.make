@@ -3,3 +3,5 @@
 
 CMakeFiles\untitled1.dir\main.cpp.obj: ..\main.cpp
 
+CMakeFiles\untitled1.dir\task5.cpp.obj: ..\task5.cpp
+

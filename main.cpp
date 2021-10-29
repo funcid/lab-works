@@ -1,39 +1,74 @@
 #include <iostream>
+#include <vector>
+#include <tuple>
+#include <windows.h>
+#include <iomanip>
+#include <regex>
+#include <algorithm>
+#include <string>
 
-void task5_9_1(std::string s, int d) {
-	// Если длина строки не кратна 50, то добавляем пробелы
-	if (s.length() % 50 != 0)
-		for (int i = 0; i < 50 - (s.length() % 50); i++)
-			s += " ";
-
-	// Счетчик для переноса на новую строку при достижении значения 50
-	int x = 0;
-	// Счетчик для получения суммы всех чисел строки
-	int sum = 0;
-
-	for (int i = 0; s[i]; i++) {
-		// Если символ s[i] - число, превращаем символ в строку и прибавляем к счетчику
-		if (isdigit(s[i]))
-			sum += s[i] - '0'; // -'0' для превращения кода символа (48 значит '0', 49 значит '1' и так далее) в число
-
-		// Если символ по номеру становится кратным 50 - сбрасываем счетчик и переносим на новую строку
-		if (x == d - 1) {
-			x = 0;
-			std::cout << "\n" << s[i];
-		} else {
-			std::cout << s[i];
-			x++;
-		}
-	}
-
-	std::cout << "\n" << "digit sum of string: " << sum;
+int safeVarRead(const std::string &preMessage, bool mayBeNegative) {
+	std::cout << preMessage << "\n";
+	std::string input;
+	std::cin >> input;
+	// Если число слишком большое или это вообще не число - просим строку заново
+	return input.length() < 9 && std::regex_match(input, std::regex(
+			std::string(mayBeNegative ? "-" : " ") + "?[0-9]+([\\.][0-9]+)?")
+	) ? std::stoi(input) : safeVarRead("Wrong number... Try again:", mayBeNegative);
 }
 
 int main() {
-	while (true) {
-		std::string s;
-		std::cin >> s;
-		task5_9_1(s, 50);
+	// Обозначаем размер матрицы
+	int m = safeVarRead("Enter rows count...", false),
+			n = safeVarRead("Enter columns count...", false);
+
+	// Создание матрицы m X (ключ - значение)
+	std::vector<std::pair<int, std::vector<double>>> matrix;
+
+	// Максимальное число для подсчета размера пробела
+	double max = DBL_MIN;
+
+	// Ввод каждого элемента матрицы
+	for (auto i = 0; i < m; i++) {
+		for (auto j = 0; j < n; j++) {
+			// Если номер строки >4 или номер столбца >4, тогда ставим случайное число
+			double number = i >= 3 || j >= 3 ?
+							((int) (((double) std::rand() / RAND_MAX - 0.5) * 20)) :
+							safeVarRead("Enter " + std::to_string(i * n + j + 1) + "`st number:", true);
+			// Если число по модулю больше максимума - переписываем максимум
+			max = max < abs(number) ? abs(number) : max;
+			// Засовываем число в матрицу, если нужна новая строчка - то создаем ее
+			if (matrix.size() < i + 1) { matrix.push_back({i, {number}}); }
+			else { matrix[i].second.push_back(number); }
+		}
+	}
+
+	// Создаем копию матрицы
+	auto copy = std::vector<std::pair<int, std::vector<double>>>(matrix);
+
+	// Сортируем копию по первому значению
+	sort(copy.begin(), copy.end(), [](auto &first, auto &second) { return first.second[0] > second.second[0]; });
+	// Оставляем только дубликаты / Дубликат если ключи равны, а значения не равны по условию
+	copy.erase(unique(copy.begin(), copy.end(), [](auto &first, auto &second) {
+		return first.second[0] == second.second[0] && first.second != second.second;
+	}), copy.end());
+
+	auto stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	// Перебираем строчки
+	std::cout << "Your matrix:\n";
+	for (const auto &item: matrix) {
+		// Если в копии, в которой остались только дубликаты, есть проходимый элемент, значит красим и помечаем копией
+		auto isCopy = std::find(copy.begin(), copy.end(), item) == copy.end();
+
+		// Если эта строчка дубликат - ставим красный фон и белый цвет текста
+		SetConsoleTextAttribute(stdHandle, isCopy ? 15 | BACKGROUND_RED : 15);
+
+		// Выводим число с отступом в зависимости от самого длинного числа
+		for (const auto &node: item.second)
+			std::cout << std::setw(std::to_string(max).length() + 1) << node;
+		// Дополнительно помечаем строку словом DUPLICATE
+		std::cout << (isCopy ? " < DUPLICATE" : "") << "\n";
 	}
 	return 0;
 }
