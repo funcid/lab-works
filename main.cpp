@@ -18,7 +18,6 @@ int safeVarRead(const std::string &preMessage, bool mayBeNegative) {
 }
 
 int main() {
-	
 	// Обозначаем размер матрицы
 	int m = safeVarRead("Enter rows count...", false),
 			n = safeVarRead("Enter columns count...", false);
