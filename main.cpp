@@ -18,6 +18,7 @@ int safeVarRead(const std::string &preMessage, bool mayBeNegative) {
 }
 
 int main() {
+	
 	// Обозначаем размер матрицы
 	int m = safeVarRead("Enter rows count...", false),
 			n = safeVarRead("Enter columns count...", false);
@@ -45,7 +46,6 @@ int main() {
 
 	// Создаем копию матрицы
 	auto copy = std::vector<std::pair<int, std::vector<double>>>(matrix);
-
 	// Сортируем копию по первому значению
 	sort(copy.begin(), copy.end(), [](auto &first, auto &second) { return first.second[0] > second.second[0]; });
 	// Оставляем только дубликаты / Дубликат если ключи равны, а значения не равны по условию
